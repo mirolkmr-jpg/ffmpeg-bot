@@ -1,0 +1,24 @@
+name: Test FFmpeg Action
+
+on:
+  workflow_dispatch: # هذا يضيف زر التشغيل اليدوي
+
+jobs:
+  run-ffmpeg:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install FFmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+
+      - name: Run FFmpeg Test
+        run: |
+          ffmpeg -user_agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" \
+          -i "http://alpha6-tx.me/play/live.php?mac=00:1A:79:7B:8B:39&stream=1917215&extension=m3u8&play_token=61Qz9x1f54" \
+          -c copy -hls_time 4 -hls_list_size 5 -t 15 -f hls playlist.m3u8
+
+      - name: Show Generated Files
+        run: ls -la
