@@ -1,11 +1,13 @@
-name: Test FFmpeg Action
+name: Stream To CDN
 
 on:
-  workflow_dispatch: # هذا يضيف زر التشغيل اليدوي
+  workflow_dispatch:
 
 jobs:
   run-ffmpeg:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # صلاحية الكتابة للمستودع
 
     steps:
       - name: Checkout code
@@ -14,11 +16,16 @@ jobs:
       - name: Install FFmpeg
         run: sudo apt-get update && sudo apt-get install -y ffmpeg
 
-      - name: Run FFmpeg Test
+      - name: Process Stream
         run: |
-          ffmpeg -user_agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" \
+          ffmpeg -y -user_agent "Mozilla/5.0" \
           -i "http://alpha6-tx.me/play/live.php?mac=00:1A:79:7B:8B:39&stream=1917215&extension=m3u8&play_token=61Qz9x1f54" \
-          -c copy -hls_time 4 -hls_list_size 5 -t 15 -f hls playlist.m3u8
+          -c copy -hls_time 4 -hls_list_size 5 -f hls playlist.m3u8
 
-      - name: Show Generated Files
-        run: ls -la
+      - name: Commit and Push Files
+        run: |
+          git config --global user.name "CDN Bot"
+          git config --global user.email "bot@github.com"
+          git add playlist.m3u8 *.ts
+          git commit -m "Update HLS Stream" || echo "No changes"
+          git push
