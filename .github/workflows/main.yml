@@ -12,6 +12,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          fetch-depth: 0
 
       - name: Install FFmpeg
         run: sudo apt-get update && sudo apt-get install -y ffmpeg
@@ -24,8 +27,8 @@ jobs:
 
       - name: Commit and Push Files
         run: |
-          git config --global user.name "CDN Bot"
-          git config --global user.email "bot@github.com"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add playlist.m3u8 *.ts
-          git commit -m "Update HLS Stream" || echo "No changes"
+          git commit -m "Auto-update HLS stream segments" || echo "No changes to commit"
           git push
